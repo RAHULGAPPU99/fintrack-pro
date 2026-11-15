@@ -1,0 +1,16 @@
+<!-- Login Screen -->
+<div id="loginScreen" class="auth-container">
+  <h2>App Lock</h2>
+  <input type="password" id="pinInput" maxlength="4" placeholder="Enter 4-Digit PIN">
+  <button onclick="verifyPin()">Login</button>
+</div>
+
+<!-- Main App Container (Hidden until logged in) -->
+<div id="mainApp" style="display:none;">
+  <nav class="bottom-nav">
+    <button onclick="switchTab('dashboard')">Dashboard</button>
+    <button onclick="switchTab('cashbook')">Cash Book</button>
+    <button onclick="switchTab('khata')">Udhar Khata</button>
+    <button onclick="switchTab('calculator')">Cash Counter</button>
+  </nav>
+</div>

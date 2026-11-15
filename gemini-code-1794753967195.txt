@@ -1,0 +1,5 @@
+finance-super-app/
+├── index.html       (Main UI, Login Modal & Navigation Tabs)
+├── style.css        (Mobile-first Responsive Design & Theme)
+├── app.js           (Complete Logic: Auth, Cashbook, Khata, Calculator & LocalStorage)
+└── README.md        (Project Documentation & Setup Guide)

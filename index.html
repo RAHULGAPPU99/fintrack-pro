@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTrack Pro - All-in-One Finance & Khata</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Login / PIN Security Screen -->
+  <div id="authScreen" class="auth-overlay">
+    <div class="auth-card">
+      <h2>FinTrack Pro</h2>
+      <p id="authSubtitle">Enter your 4-Digit Security PIN</p>
+      <input type="password" id="pinInput" maxlength="4" inputmode="numeric" placeholder="••••">
+      <button onclick="handleAuth()" class="btn-primary">Unlock App</button>
+      <p class="auth-hint" id="authHint">Default PIN for first time: 1234 (You can change it in Settings)</p>
+    </div>
+  </div>
+
+  <!-- Main Application -->
+  <div id="appContainer" class="app-container" style="display: none;">
+    
+    <!-- Top Header -->
+    <header class="app-header">
+      <div>
+        <h1>FinTrack Pro</h1>
+        <span id="currentDate"></span>
+      </div>
+      <div class="header-actions">
+        <button onclick="exportDataCSV()" class="btn-icon" title="Export CSV">📥</button>
+        <button onclick="lockApp()" class="btn-icon" title="Lock App">🔒</button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- TAB 1: DASHBOARD -->
+      <section id="tab-dashboard" class="tab-section active">
+        <div class="balance-card">
+          <p>Net Cash Balance</p>
+          <h2 id="dashNetBalance">₹0</h2>
+          <div class="balance-split">
+            <div class="split-box in">
+              <span>Total Cash In</span>
+              <strong id="dashTotalIn">₹0</strong>
+            </div>
+            <div class="split-box out">
+              <span>Total Cash Out</span>
+              <strong id="dashTotalOut">₹0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="stat-card">
+            <span>Udhar Receivable (Lena Hai)</span>
+            <strong class="text-green" id="dashKhataReceive">₹0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Udhar Payable (Dena Hai)</span>
+            <strong class="text-red" id="dashKhataPay">₹0</strong>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h3>Recent Transactions</h3>
+        </div>
+        <ul id="recentTxList" class="tx-list"></ul>
+      </section>
+
+      <!-- TAB 2: CASHBOOK & INCOME/EXPENSE -->
+      <section id="tab-cashbook" class="tab-section">
+        <div class="form-card">
+          <h3>Add Cash / Expense Entry</h3>
+          <div class="type-toggle">
+            <button type="button" id="btnTypeIn" class="toggle-btn active-in" onclick="setTxType('IN')">+ Cash In (Income)</button>
+            <button type="button" id="btnTypeOut" class="toggle-btn" onclick="setTxType('OUT')">- Cash Out (Expense)</button>
+          </div>
+          <input type="number" id="txAmount" placeholder="Amount (₹)" required>
+          <input type="text" id="txDesc" placeholder="Description (e.g., Shop Sales, Electricity Bill)">
+          <div class="row-inputs">
+            <select id="txCategory">
+              <option value="Sales">Sales / Business</option>
+              <option value="Salary">Salary / Wages</option>
+              <option value="Food">Food & Tea</option>
+              <option value="Rent">Rent & Utilities</option>
+              <option value="Transport">Transport / Fuel</option>
+              <option value="Other">Other</option>
+            </select>
+            <select id="txMode">
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI / Online</option>
+              <option value="Bank">Bank Transfer</option>
+            </select>
+          </div>
+          <button onclick="addTransaction()" class="btn-primary">Save Entry</button>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="searchTx" onkeyup="renderCashbook()" placeholder="Search entries...">
+          <select id="filterMode" onchange="renderCashbook()">
+            <option value="ALL">All Modes</option>
+            <option value="Cash">Cash</option>
+            <option value="UPI">UPI</option>
+            <option value="Bank">Bank</option>
+          </select>
+        </div>
+        <ul id="cashbookList" class="tx-list"></ul>
+      </section>
+
+      <!-- TAB 3: UDHAR KHATA (CUSTOMER LEDGER) -->
+      <section id="tab-khata" class="tab-section">
+        <div class="form-card">
+          <h3>Udhar Khata Entry</h3>
+          <input type="text" id="khataName" placeholder="Customer / Supplier Name">
+          <input type="tel" id="khataPhone" placeholder="Mobile Number (Optional)">
+          <input type="number" id="khataAmount" placeholder="Amount (₹)">
+          <input type="text" id="khataNote" placeholder="Item / Bill Note">
+          <div class="row-inputs">
+            <button onclick="addKhataEntry('GAVE')" class="btn-red">You Gave (Diya)</button>
+            <button onclick="addKhataEntry('GOT')" class="btn-green">You Got (Mila)</button>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h3>Party Balances</h3>
+        </div>
+        <div id="khataPartyList" class="party-list"></div>
+      </section>
+
+      <!-- TAB 4: CASH DENOMINATION CALCULATOR -->
+      <section id="tab-calculator" class="tab-section">
+        <div class="calc-card">
+          <div class="calc-total-box">
+            <span>Total Cash Count</span>
+            <h2 id="calcGrandTotal">₹0</h2>
+            <small id="calcTotalNotes">Total Notes: 0</small>
+          </div>
+
+          <div class="denom-grid" id="denomContainer">
+            <!-- Generated dynamically by JS -->
+          </div>
+
+          <button onclick="resetCalculator()" class="btn-secondary">Reset Counter</button>
+        </div>
+      </section>
+
+      <!-- TAB 5: SETTINGS & BACKUP -->
+      <section id="tab-settings" class="tab-section">
+        <div class="form-card">
+          <h3>Security & PIN Settings</h3>
+          <input type="password" id="newPinInput" maxlength="4" inputmode="numeric" placeholder="New 4-Digit PIN">
+          <button onclick="updatePin()" class="btn-primary">Update PIN</button>
+        </div>
+
+        <div class="form-card">
+          <h3>Data Backup & Restore</h3>
+          <button onclick="backupJSON()" class="btn-secondary">Download Backup (JSON)</button>
+          <input type="file" id="restoreFile" accept=".json" onchange="restoreJSON(event)" style="margin-top: 10px;">
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button onclick="switchTab('dashboard')" class="nav-btn active" id="nav-dashboard">🏠<span>Home</span></button>
+      <button onclick="switchTab('cashbook')" class="nav-btn" id="nav-cashbook">📒<span>CashBook</span></button>
+      <button onclick="switchTab('khata')" class="nav-btn" id="nav-khata">👥<span>Khata</span></button>
+      <button onclick="switchTab('calculator')" class="nav-btn" id="nav-calculator">🧮<span>Counter</span></button>
+      <button onclick="switchTab('settings')" class="nav-btn" id="nav-settings">⚙️<span>Settings</span></button>
+    </nav>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
